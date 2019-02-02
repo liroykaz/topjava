@@ -1,7 +1,9 @@
 package ru.javawebinar.topjava.repository.jpa;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.MealRepository;
 
 import javax.persistence.EntityManager;
@@ -16,8 +18,10 @@ public class JpaMealRepositoryImpl implements MealRepository {
     private EntityManager em;
 
     @Override
+    @Transactional
     public Meal save(Meal meal, int userId) {
         if (meal.isNew()) {
+            meal.setUser(em.getReference(User.class, userId));
             em.persist(meal);
             return meal;
         } else {
@@ -26,11 +30,12 @@ public class JpaMealRepositoryImpl implements MealRepository {
     }
 
     @Override
+    @Transactional
     public boolean delete(int id, int userId) {
 //        Meal mealRef = em.getReference(Meal.class, id);
 //        em.remove(mealRef);
 
-        return em.createNamedQuery(Meal.DELETE, Meal.class)
+        return em.createNamedQuery(Meal.DELETE)
                 .setParameter("id", id)
                 .executeUpdate() != 0;
     }
